@@ -1,0 +1,15 @@
+{
+    "name": "skillcheck-playwright",
+    "version": "1.0.0",
+    "description": "A simple Playwright project to search Google for 'Java'",
+    "main": "index.js",
+    "scripts": {
+        "test": "npx playwright test",
+        "report": "npx playwright show-report"
+    },
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@playwright/test": "^1.52.0"
+    }
+}
