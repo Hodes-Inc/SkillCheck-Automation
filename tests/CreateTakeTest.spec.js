@@ -1,11 +1,12 @@
 // tests/google-search.spec.js
 const { test, expect } = require('@playwright/test');
+const { LoginToSkillCheck, addQuestionToTest } = require('../utils/common');
+const config = require('../config/config');
 let testName = 'Automation-Test'+Date.now();
-let URL='https://www.fadvassessments.com/onlinetesting/gamma.html';
 test('Create and take an assessment in skill check', async ({ page }) => {
   try{
   //testName='Automation-Test1745856835879';
-  LoginToSkillCheck(page, URL,'marc2', 'Administrator', 'Sk1llCheck!');
+  await LoginToSkillCheck(page, config.adminURL,config.users.admin.accountID, config.users.admin.username, config.users.admin.password);  
   await page.waitForTimeout(3000);
   await page.click('a:has-text("Test Builder")'); 
   await page.click('a:has-text("I understand")');
@@ -32,7 +33,7 @@ test('Create and take an assessment in skill check', async ({ page }) => {
   // Click the "Do Publish" button
   await page.locator('a#doPublishButton').click();
   //await page.waitForResponse(3000);
-  await LoginToSkillCheck(page,URL,'QATEST', 'Administrator', 'Sk1llCheck!');
+  await LoginToSkillCheck(page, config.adminURL,config.users.candidate.accountID, config.users.candidate.username, config.users.candidate.password);  
   //await page.waitForTimeout(3000);
     // Click 'Launch a Session'
     await page.locator('div.box', { hasText: 'Launch a Session' }).click();
@@ -64,7 +65,7 @@ test('Create and take an assessment in skill check', async ({ page }) => {
     await page.locator('button', { hasText: 'Next' }).click();
     await page.locator('button', { hasText: 'Start Test' }).click();
   
-   
+    await page.waitForTimeout(2000);
   
     // Fill user details
     await page.locator('input[name="txtFirstName"]').fill('Automation');
@@ -86,23 +87,23 @@ test('Create and take an assessment in skill check', async ({ page }) => {
     // Skip next question
     await page.locator('#btnAnswerSkip').click();
   
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(3000);
   
     // Answer another question
     await page.locator('#button2').click({ force: true });
     await page.locator('button#btnAnswerComplete').click();
   
-    //await page.waitForTimeout(2000);
+    await page.waitForTimeout(2000);
   
     // Continue
     await page.locator('button#btnContinue').click();
   
-    //await page.waitForTimeout(2000);
+    await page.waitForTimeout(2000);
   
     // Exit
     await page.locator('button#btnExitTestSession').click();
   
-    //await page.waitForTimeout(2000);
+    await page.waitForTimeout(3000);
   
     // Assertions for result images
     const rows = page.locator('table tbody tr');
@@ -111,22 +112,22 @@ test('Create and take an assessment in skill check', async ({ page }) => {
       .toHaveAttribute('alt', /Incorrect/);
   
     await expect(rows.nth(2).locator('td').nth(2).locator('img'))
-      .toHaveAttribute('alt', /Not Attempted/);
-  
+    .toHaveAttribute('alt', /Correct/);
+      
     await expect(rows.nth(3).locator('td').nth(2).locator('img'))
-      .toHaveAttribute('alt', /Correct/);
+    .toHaveAttribute('alt', /Not Attempted/);
     //delete created test  
-    LoginToSkillCheck(page, URL,'marc2', 'Administrator', 'Sk1llCheck!');
+    await LoginToSkillCheck(page, config.adminURL,config.users.admin.accountID, config.users.admin.username, config.users.admin.password);  
     await page.waitForTimeout(3000);
     await page.click('a:has-text("Test Builder")'); 
     await page.click('a:has-text("I understand")');
     await page.click('li#openTestButton');
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(5000);
     await page.locator('a', { hasText: `${testName}` }).click();
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(5000);
     await page.click('a#deleteTestButton');
     await page.click('a#doDeleteButton');
-    await page.waitForTimeout(9000);
+    //await page.waitForTimeout(9000);
   }catch(e){
     console.error('Error happened:', e);
     const videoPath = await page.video().path();
@@ -135,52 +136,5 @@ test('Create and take an assessment in skill check', async ({ page }) => {
   }
 });
 
-async function LoginToSkillCheck(page,url,ID, username, password) {
-  await page.goto(url);
-  await page.fill('input[name="ID"]', ID);
-  await page.fill('input[name="username"]', username);
-  await page.fill('input[name="password"]', password);
-  await page.click('input[name="login"]');
-}
 
-async function addQuestionToTest(page, questionName, topic, questionText, options) {
-  await page.locator('span', { hasText: 'Add question' }).click();
 
-  // Click floating add button (force if needed)
-  //await page.waitForSelector('a[data-tooltip="Create New Question"]');
-  const buttons = page.locator('a[data-tooltip="Create New Question"]');
-  const count = await buttons.count();
-  console.log('Create New Question button count: ', count);
-  
-  // If two buttons, click the second
-  if (count >= 2) {
-      await buttons.nth(1).click();
-  } else if (count === 1) {
-      await buttons.first().click();
-  } else {
-      throw new Error('Create New Question button not found!');
-  }
-  // Fill in the question form
-  await page.locator('input#new_question_name').fill(questionName);
-  await page.locator('input#new_question_topic').fill(topic);
-  await page.locator('textarea#new_question_text').fill(questionText);
-
-  // Fill options
-  await page.locator('input#option_input_0').fill(options[0]);
-  await page.locator('input#option_input_1').fill(options[1]);
-
-  // Click to add new option
-  await page.locator('input#addOptionText').click();
-
-  // Fill third option
-  await page.locator('input#option_input_2').fill(options[2]);
-
-  // Save the question
-  await page.locator('#doSaveQuestionButton').click();
-
-  // Close the dialog
-  await page.locator('a', { hasText: 'Close' }).click();
-
-  // Assert that new question exists
-  await expect(page.locator('text=['+topic+'] '+questionName+'')).toBeVisible();
-}
