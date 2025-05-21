@@ -2,8 +2,8 @@
 const { test, expect } = require('@playwright/test');
 let testName = 'Automation-Test'+Date.now();
 let URL='https://www.fadvassessments.com/onlinetesting/gamma.html';
-let testURL='https://gamma.skillcheck.com/';
 test('Create and take an assessment in skill check', async ({ page }) => {
+  try{
   //testName='Automation-Test1745856835879';
   LoginToSkillCheck(page, URL,'marc2', 'Administrator', 'Sk1llCheck!');
   await page.waitForTimeout(3000);
@@ -24,20 +24,20 @@ test('Create and take an assessment in skill check', async ({ page }) => {
   //Add third question
   await addQuestionToTest(page, 'Java3', 'Automation-Java', 'Which of these cannot be used for a variable name in Java?', ['identifier', 'identifier & keyword', 'keyword']);
   await page.waitForTimeout(3000);
-await page.locator('#saveTestButton').click();
-await page.waitForTimeout(3000);
-// Click the "Publish Test" button
-await page.locator('a#publishTestButton').click();
-//await page.waitForTimeout(8000);
-// Click the "Do Publish" button
-await page.locator('a#doPublishButton').click();
-//await page.waitForResponse(3000);
-await LoginToSkillCheck(page,URL,'QATEST', 'Administrator', 'Sk1llCheck!');
-//await page.waitForTimeout(3000);
+  await page.locator('#saveTestButton').click();
+  await page.waitForTimeout(3000);
+  // Click the "Publish Test" button
+  await page.locator('a#publishTestButton').click();
+  //await page.waitForTimeout(8000);
+  // Click the "Do Publish" button
+  await page.locator('a#doPublishButton').click();
+  //await page.waitForResponse(3000);
+  await LoginToSkillCheck(page,URL,'QATEST', 'Administrator', 'Sk1llCheck!');
+  //await page.waitForTimeout(3000);
     // Click 'Launch a Session'
     await page.locator('div.box', { hasText: 'Launch a Session' }).click();
 
-console.log(testName);
+  console.log(testName);
     // Wait for the session to be ready (better to wait for selector)
     
   
@@ -115,8 +115,26 @@ console.log(testName);
   
     await expect(rows.nth(3).locator('td').nth(2).locator('img'))
       .toHaveAttribute('alt', /Correct/);
-      await page.waitForTimeout(5000);
+    //delete created test  
+    LoginToSkillCheck(page, URL,'marc2', 'Administrator', 'Sk1llCheck!');
+    await page.waitForTimeout(3000);
+    await page.click('a:has-text("Test Builder")'); 
+    await page.click('a:has-text("I understand")');
+    await page.click('li#openTestButton');
+    await page.waitForTimeout(3000);
+    await page.locator('a', { hasText: `${testName}` }).click();
+    await page.waitForTimeout(3000);
+    await page.click('a#deleteTestButton');
+    await page.click('a#doDeleteButton');
+    await page.waitForTimeout(9000);
+  }catch(e){
+    console.error('Error happened:', e);
+    const videoPath = await page.video().path();
+    console.log('Saved video at:', videoPath);
+    throw e; // rethrow so the test still fails
+  }
 });
+
 async function LoginToSkillCheck(page,url,ID, username, password) {
   await page.goto(url);
   await page.fill('input[name="ID"]', ID);
