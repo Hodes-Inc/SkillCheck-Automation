@@ -1,6 +1,6 @@
 module.exports = {
-    adminURL: 'https://www.fadvassessments.com/onlinetesting/gamma.html',
-  
+    adminURL: 'https://gamma.skillcheck.com/onlinetesting/adminPortal/flashassets/',
+    devURL: 'https://dev.skillcheck.com/onlinetesting/adminPortal/flashassets/home/dashboard',
     users: {
       admin: {
         accountID: 'marc2',

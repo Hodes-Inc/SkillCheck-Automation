@@ -1,10 +1,15 @@
 const { expect } = require('@playwright/test');
 async function LoginToSkillCheck(page,url,ID, username, password) {
     await page.goto(url);
-    await page.fill('input[name="ID"]', ID);
-    await page.fill('input[name="username"]', username);
-    await page.fill('input[name="password"]', password);
-    await page.click('input[name="login"]');
+    await page.getByPlaceholder('AccountID').fill(ID);
+    await page.getByPlaceholder('Username').fill(username);
+    await page.getByPlaceholder('Password').fill(password);
+    await page.locator('button.signIn', { hasText: 'Sign In' }).click();
+
+    // await page.fill('input[name="ID"]', ID);
+    // await page.fill('input[name="username"]', username);
+    // await page.fill('input[name="password"]', password);
+    // await page.click('input[name="login"]');
   }
   async function addQuestionToTest(page, questionName, topic, questionText, options) {
     await page.locator('span', { hasText: 'Add question' }).click();
